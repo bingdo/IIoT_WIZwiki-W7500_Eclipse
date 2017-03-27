@@ -89,6 +89,9 @@ uint8_t socket_buf[2048];
 uint8_t g_op_mode = NORMAL_MODE;
 
 volatile uint8_t g_check_temp;
+#if defined(F_ENABLE_TCPClient)
+char str[256];
+#endif
 
 /**
   * @brief   Main program
@@ -303,6 +306,14 @@ int main()
 			else
 			{
 				printf("\r\nError\r\n\r\nHumidity: %d.%d %%RH, Temperature: %d.%d C\r\n", DHT11_DATA.humi_int, DHT11_DATA.humi_deci, DHT11_DATA.temp_int, DHT11_DATA.temp_deci);
+			}
+#endif
+#if defined(F_ENABLE_TCPClient)
+			sprintf(str, "Humidity: %d.%d %%RH, Temperature: %d.%d C\r\n", DHT11_DATA.humi_int, DHT11_DATA.humi_deci, DHT11_DATA.temp_int, DHT11_DATA.temp_deci);
+			struct __network_info *network = (struct __network_info *)get_S2E_Packet_pointer()->network_info;
+			if(network->state == net_connect)
+			{
+				RingBuffer_InsertMult(&rxring, &str, strlen(str));
 			}
 #endif
 		}
