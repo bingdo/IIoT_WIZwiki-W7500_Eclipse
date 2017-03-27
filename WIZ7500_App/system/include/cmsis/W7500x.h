@@ -186,7 +186,7 @@ typedef struct
   __IO  uint32_t  PWM4CLK_PVSR;       /*!< PWM4CLK prescale value select register,       Address offset : 0xf4 */     
         uint32_t  RESERVED11[2];
   __IO  uint32_t  PWM5CLK_SSR;        /*!< PWM5CLK source select register,               Address offset : 0x100 */     
-  __IO  uint32_t  PWM5LK_PVSR;        /*!< PWM5CLK prescale value select register,       Address offset : 0x104 */     
+  __IO  uint32_t  PWM5CLK_PVSR;       /*!< PWM5CLK prescale value select register,       Address offset : 0x104 */     
         uint32_t  RESERVED12[2];
   __IO  uint32_t  PWM6CLK_SSR;        /*!< PWM6CLK source select register,               Address offset : 0x110 */     
   __IO  uint32_t  PWM6CLK_PVSR;       /*!< PWM6CLK prescale value select register,       Address offset : 0x114 */     
@@ -594,9 +594,6 @@ typedef struct
 #define PB_PCR  ((P_Port_Def *)   (P_PCR_BASE + 0x00000040UL))   /* PB_XX Pad Control Register */
 #define PC_PCR  ((P_Port_Def *)   (P_PCR_BASE + 0x00000080UL))   /* PC_XX Pad Control Register */
 #define PD_PCR  ((P_Port_D_Def *) (P_PCR_BASE + 0x000000C0UL))   /* PD_XX Pad Control Register */
-
-//#define I2C0    ((I2C_TypeDef      *)  I2C0_BASE)
-//#define I2C1    ((I2C_TypeDef      *)  I2C1_BASE)
 
 #define PWM                             ((PWM_TypeDef *)         (W7500x_PWM_BASE + 0x800UL ))   
 #define PWM_CH0                         ((PWM_CHn_TypeDef *)     (W7500x_PWM_BASE))   

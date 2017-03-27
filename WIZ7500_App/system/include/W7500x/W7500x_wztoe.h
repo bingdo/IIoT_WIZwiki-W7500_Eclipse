@@ -21,6 +21,8 @@
  *********************************************************************
  * @attention
  * @par Revision history
+ *    <2017/01/06> V1.0.3 by justinKim
+ *      1. DHAR register Read/Write problem bug fix
  *    <2015/05/20> V1.0.2 by justinKim
  *      1. Register & Macro name change WZTOE_xxx
  *    <2015/05/19> V1.0.1 by justinKim
@@ -55,12 +57,12 @@
 #define WZTOE_PHY_BASE            (W7500x_WZTOE_BASE + 0x00004000) 
 #define WZTOE_NETIPV4_BASE        (W7500x_WZTOE_BASE + 0x00006000) 
 
-#define WZTOE_VERSIONR            (WZTOE_VENDOR_INFO)
-#define WZTOE_TIC100US            (WZTOE_SYS_BASE)
+#define WZTOE_VERSIONR            (WZTOE_VENDOR_INFO) //Reset Value : 0x0000_0005
+#define WZTOE_TIC100US            (WZTOE_SYS_BASE)    //Reset Value : 0x0000_07D0
 
-#define WZTOE_IR                  (W7500x_WZTOE_BASE + 0x00002100) //Interrupt
-#define WZTOE_IMR                 (W7500x_WZTOE_BASE + 0x00002104)
-#define WZTOE_ICR                 (W7500x_WZTOE_BASE + 0x00002108)
+#define WZTOE_IR                  (W7500x_WZTOE_BASE + 0x00002100) //Interrupt Register
+#define WZTOE_IMR                 (W7500x_WZTOE_BASE + 0x00002104) //Interrupt Mask Register
+#define WZTOE_ICR                 (W7500x_WZTOE_BASE + 0x00002108) //Interrupt Clear Register
 #define WZTOE_SIR                 (W7500x_WZTOE_BASE + 0x00002110)
 #define WZTOE_SIMR                (W7500x_WZTOE_BASE + 0x00002114)
 #define WZTOE_INTLEVEL            (W7500x_WZTOE_BASE + 0x00002200)
@@ -101,6 +103,7 @@
 #define WZTOE_Sn_MSSR(ch)         (W7500x_WZTOE_BASE + (0x00010110 + ((ch)<<18))) 
 #define WZTOE_Sn_PORT(ch)         (W7500x_WZTOE_BASE + (0x00010114 + ((ch)<<18))) 
 #define WZTOE_Sn_DHAR(ch)         (W7500x_WZTOE_BASE + (0x00010118 + ((ch)<<18))) 
+
 #define WZTOE_Sn_DPORT(ch)        (W7500x_WZTOE_BASE + (0x00010120 + ((ch)<<18))) 
 #define WZTOE_Sn_DIPR(ch)         (W7500x_WZTOE_BASE + (0x00010124 + ((ch)<<18)))
 #define WZTOE_Sn_DIPR1(ch)         (W7500x_WZTOE_BASE + (0x00010125 + ((ch)<<18)))
@@ -951,8 +954,11 @@ uipr[3] = WIZCHIP_READ((WZTOE_UIPR));
     WIZCHIP_WRITE((WZTOE_Sn_DHAR(sn)+2), dhar[1]); \
     WIZCHIP_WRITE((WZTOE_Sn_DHAR(sn)+1), dhar[2]); \
     WIZCHIP_WRITE((WZTOE_Sn_DHAR(sn)+0), dhar[3]); \
-    WIZCHIP_WRITE((WZTOE_Sn_DHAR(sn)+7), dhar[4]); \
-    WIZCHIP_WRITE((WZTOE_Sn_DHAR(sn)+6), dhar[5]); 
+    WIZCHIP_WRITE((WZTOE_Sn_DHAR(sn)+5), dhar[4]); \
+    WIZCHIP_WRITE((WZTOE_Sn_DHAR(sn)+4), dhar[5]); 
+    //17.01.06 by justinkim
+    //WIZCHIP_WRITE((WZTOE_Sn_DHAR(sn)+7), dhar[4]); \
+    //WIZCHIP_WRITE((WZTOE_Sn_DHAR(sn)+6), dhar[5]); 
 
 /**
  * @ingroup Socket_register_access_function

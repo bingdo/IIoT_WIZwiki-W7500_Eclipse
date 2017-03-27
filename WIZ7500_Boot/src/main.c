@@ -37,6 +37,7 @@
 #include "extiHandler.h"
 #include "DHCP/dhcp.h"
 #include "DNS/dns.h"
+#include "bsp_dht11.h"
 
 /* Private typedef -----------------------------------------------------------*/
 UART_InitTypeDef UART_InitStructure;
@@ -51,7 +52,7 @@ UART_InitTypeDef UART_InitStructure;
 ///////////////////////////////////////
 // Debugging Message Printout enable //
 ///////////////////////////////////////
-#define _MAIN_DEBUG_
+//#define _MAIN_DEBUG_
 //#define F_APP_DHCP
 //#define F_APP_DNS
 
@@ -91,6 +92,8 @@ volatile uint8_t factory_flag;
 
 uint8_t socket_buf[MAX_MTU_SIZE];
 uint8_t g_op_mode = NORMAL_MODE;
+
+volatile uint8_t g_check_temp;
 
 void application_jump(void)
 {
@@ -167,15 +170,22 @@ int main()
 #if defined(F_APP_DNS)
 	uint8_t dns_server_ip[4];
 #endif
+#if defined(F_ENABLE_DHT11)
+	DHT11_DATA_TypeDef DHT11_DATA;
+#endif
 
     /* External Clock */
     CRG_PLL_InputFrequencySelect(CRG_OCLK);
 
     /* Clock */
+#if defined(F_ENABLE_DHT11)
+    *(volatile uint32_t *)(0x41001014) = 0x00050200; // 20MHz, Default
+#else
     *(volatile uint32_t *)(0x41001014) = 0x00060100; // 48MHz
     //*(volatile uint32_t *)(0x41001014) = 0x000C0200; // 48MHz
     //*(volatile uint32_t *)(0x41001014) = 0x00050200; // 20MHz, Default
     //*(volatile uint32_t *)(0x41001014) = 0x00040200; // 16MHz
+#endif
 
     /* Set System init */
     SystemInit();
@@ -216,6 +226,9 @@ int main()
 	BOOT_Pin_Init();
 	Board_factory_Init();
 	EXTI_Configuration();
+#if defined(F_ENABLE_DHT11)
+	DHT11_Init();
+#endif
 
 #if defined(EEPROM_ENABLE)
     I2C1_Init();
@@ -240,14 +253,13 @@ int main()
 	}
 #endif
 
-    UART_StructInit(&UART_InitStructure);
-    UART_Init(UART_DEBUG,&UART_InitStructure);
+    //UART_StructInit(&UART_InitStructure);
+    //UART_Init(UART_DEBUG,&UART_InitStructure);
 	Timer0_Configuration();
 
-#ifdef _MAIN_DEBUG_
 	uint8_t tmpstr[6] = {0,};
-
 	ctlwizchip(CW_GET_ID,(void*)tmpstr);
+#ifdef _MAIN_DEBUG_
     printf("\r\n============================================\r\n");
 	printf(" WIZnet %s EVB Demo v%d.%.2d\r\n", tmpstr, VER_H, VER_L);
 	printf("============================================\r\n");
@@ -339,13 +351,13 @@ int main()
 	}
 #endif
 
-	display_Net_Info();
+	//display_Net_Info();
 
 	TFTP_init(SOCK_TFTP, socket_buf);
 
 	ret = application_update();
 
-    printf("[BOOT] check trigger:%d ret:%d\r\n", get_bootpin_Status(), ret);
+    //printf("[BOOT] check trigger:%d ret:%d\r\n", get_bootpin_Status(), ret);
 	if((get_bootpin_Status() == 0) && (ret != TFTP_FAIL)) {
 		uint32_t tmp;
 
@@ -360,7 +372,7 @@ int main()
 			// Copy the application code interrupt vector to 0x00000000
 			//printf("\r\n copy the interrupt vector, app area [0x%.8x] ==> boot", DEVICE_APP_MAIN_ADDR);
 			Copy_Interrupt_VectorTable(DEVICE_APP_MAIN_ADDR);
-		    printf("[BOOT] jump to application\r\n");
+		    //printf("[BOOT] jump to application\r\n");
 			application_jump();
 		}
 	}
@@ -371,6 +383,22 @@ int main()
 		} else {
 			if(TFTP_run() != TFTP_PROGRESS)
 				g_op_mode = NORMAL_MODE;
+		}
+
+		if (g_check_temp == 1)
+		{
+			g_check_temp = 0;
+
+#if defined(F_ENABLE_DHT11)
+			if(Read_TempAndHumidity(&DHT11_DATA) == SUCCESS)
+			{
+				printf("\r\nResult\r\n\r\nHumidity: %d.%d %%RH, Temperature: %d.%d C\r\n", DHT11_DATA.humi_int, DHT11_DATA.humi_deci, DHT11_DATA.temp_int, DHT11_DATA.temp_deci);
+			}
+			else
+			{
+				printf("\r\nError\r\n\r\nHumidity: %d.%d %%RH, Temperature: %d.%d C\r\n", DHT11_DATA.humi_int, DHT11_DATA.humi_deci, DHT11_DATA.temp_int, DHT11_DATA.temp_deci);
+			}
+#endif
 		}
 
 #if defined(F_APP_DHCP)
