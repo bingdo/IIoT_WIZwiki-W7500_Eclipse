@@ -25,7 +25,6 @@
 #include "W7500x_wztoe.h"
 #include "W7500x_miim.h"
 #include "W7500x_i2c.h"
-#include "W7500x_adc.h"
 #include "common.h"
 #include "uartHandler.h"
 #include "flashHandler.h"
@@ -41,10 +40,10 @@
 #include "S2E.h"
 #include "dhcp_cb.h"
 #include "atcmd.h"
+#include "bsp_dht11.h"
 
 /* Private typedef -----------------------------------------------------------*/
 UART_InitTypeDef UART_InitStructure;
-I2C_ConfigStruct conf;
 
 /* Private define ------------------------------------------------------------*/
 #define __DEF_USED_MDIO__
@@ -57,7 +56,7 @@ I2C_ConfigStruct conf;
 // Debugging Message Printout enable //
 ///////////////////////////////////////
 #define _MAIN_DEBUG_
-//#define F_APP_DHCP
+#define F_APP_DHCP
 //#define F_APP_DNS
 //#define F_APP_ATC
 
@@ -90,6 +89,9 @@ uint8_t socket_buf[2048];
 uint8_t g_op_mode = NORMAL_MODE;
 
 volatile uint8_t g_check_temp;
+#if defined(F_ENABLE_TCPClient)
+char str[256];
+#endif
 
 /**
   * @brief   Main program
@@ -113,15 +115,22 @@ int main()
 #if defined(F_APP_DNS)
 	uint8_t dns_server_ip[4];
 #endif
+#if defined(F_ENABLE_DHT11)
+	DHT11_DATA_TypeDef DHT11_DATA;
+#endif
 
     /* External Clock */
     CRG_PLL_InputFrequencySelect(CRG_OCLK);
 
     /* Clock */
+#if defined(F_ENABLE_DHT11)
+    *(volatile uint32_t *)(0x41001014) = 0x00050200; // 20MHz, Default
+#else
     *(volatile uint32_t *)(0x41001014) = 0x00060100; // 48MHz
     //*(volatile uint32_t *)(0x41001014) = 0x000C0200; // 48MHz
     //*(volatile uint32_t *)(0x41001014) = 0x00050200; // 20MHz, Default
     //*(volatile uint32_t *)(0x41001014) = 0x00040200; // 16MHz
+#endif
 
     /* Set System init */
     SystemInit();
@@ -149,6 +158,9 @@ int main()
 	BOOT_Pin_Init();
 	Board_factory_Init();
 	//EXTI_Configuration();
+#if defined(F_ENABLE_DHT11)
+	DHT11_Init();
+#endif
 
 #if defined(EEPROM_ENABLE)
     I2C1_Init();
@@ -161,14 +173,13 @@ int main()
 	/* Check MAC Address */
 	//check_mac_address();
 
-    UART_StructInit(&UART_InitStructure);
-    UART_Init(UART_DEBUG,&UART_InitStructure);
+    //UART_StructInit(&UART_InitStructure);
+    //UART_Init(UART_DEBUG,&UART_InitStructure);
 	Timer0_Configuration();
 
-#ifdef _MAIN_DEBUG_
 	uint8_t tmpstr[6] = {0,};
-
 	ctlwizchip(CW_GET_ID,(void*)tmpstr);
+#ifdef _MAIN_DEBUG_
     printf("\r\n============================================\r\n");
 	printf(" WIZnet %s EVB Demo v%d.%.2d\r\n", tmpstr, VER_H, VER_L);
 	printf("============================================\r\n");
@@ -286,6 +297,25 @@ int main()
 		if (g_check_temp == 1)
 		{
 			g_check_temp = 0;
+
+#if defined(F_ENABLE_DHT11)
+			if(Read_TempAndHumidity(&DHT11_DATA) == SUCCESS)
+			{
+				printf("\r\nResult\r\n\r\nHumidity: %d.%d %%RH, Temperature: %d.%d C\r\n", DHT11_DATA.humi_int, DHT11_DATA.humi_deci, DHT11_DATA.temp_int, DHT11_DATA.temp_deci);
+			}
+			else
+			{
+				printf("\r\nError\r\n\r\nHumidity: %d.%d %%RH, Temperature: %d.%d C\r\n", DHT11_DATA.humi_int, DHT11_DATA.humi_deci, DHT11_DATA.temp_int, DHT11_DATA.temp_deci);
+			}
+#endif
+#if defined(F_ENABLE_TCPClient)
+			sprintf(str, "Humidity: %d.%d %%RH, Temperature: %d.%d C\r\n", DHT11_DATA.humi_int, DHT11_DATA.humi_deci, DHT11_DATA.temp_int, DHT11_DATA.temp_deci);
+			struct __network_info *network = (struct __network_info *)get_S2E_Packet_pointer()->network_info;
+			if(network->state == net_connect)
+			{
+				RingBuffer_InsertMult(&rxring, &str, strlen(str));
+			}
+#endif
 		}
 
 #if defined(F_APP_DHCP)

@@ -30,6 +30,7 @@ void Timer_IRQ_Handler(void)
 		if((mill_sec % 1000) == 0) {
 			mill_sec = 0;
 			tftp_timeout_handler();
+            g_check_temp = 1;
 		}
 	}
 }
