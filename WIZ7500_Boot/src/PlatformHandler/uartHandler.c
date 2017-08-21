@@ -253,7 +253,11 @@ void myprintf(char *fmt, ...)
 	va_end(arg_ptr);
 
 #if 1
+#if defined(ENABLE_MAC_UART2)
+	S_UartPuts(etxt);
+#else
 	UART_write(etxt, strlen(etxt));
+#endif
 #else
 	UartPuts(UART_DATA, etxt);
 #endif

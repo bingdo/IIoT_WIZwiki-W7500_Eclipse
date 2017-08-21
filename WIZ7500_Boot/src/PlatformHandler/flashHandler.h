@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 //#define MULTIFLASH_ENABLE
+#define DATABLOCK_ENABLE
 
 #define IAP_ENTRY 			0x1FFF1001            // Because Thum code
 #define IAP_ERAS            0x010
@@ -21,7 +22,11 @@
 #define SECT_SIZE       	256
 
 #define FLASH_PAGE0_BASE	0x00000000
+#if defined(DATABLOCK_ENABLE)
+#define FLASH_CONFIG_PAGE	0
+#else
 #define FLASH_CONFIG_PAGE	4
+#endif
 #if !defined(MULTIFLASH_ENABLE)
 #define FLASH_PAGE_SIZE		0x100
 #define FLASH_PAGE			512

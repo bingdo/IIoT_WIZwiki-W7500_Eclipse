@@ -18,14 +18,22 @@ int read_storage(uint8_t isConfig, void *data, uint16_t size)
 
 	if(isConfig == 1) {
 #if !defined(MULTIFLASH_ENABLE)
+#if defined(DATABLOCK_ENABLE)
+		address = DAT1_START_ADDR;
+#else
 		address = (FLASH_PAGE_SIZE*2) + CONFIG_PAGE_ADDR;
+#endif
 #else
 		address = flash.flash_page_size + flash.config_page_addr;
 #endif
 	}
 	else {
 #if !defined(MULTIFLASH_ENABLE)
+#if defined(DATABLOCK_ENABLE)
+		address = DAT0_START_ADDR;
+#else
 		address = 0x00000000 + CONFIG_PAGE_ADDR;
+#endif
 #else
 		address = 0x00000000 + flash.config_page_addr;
 #endif
@@ -68,21 +76,31 @@ int write_storage(uint8_t isConfig, void *data, uint16_t size)
 
 	if(isConfig == 1) {
 #if !defined(MULTIFLASH_ENABLE)
+#if defined(DATABLOCK_ENABLE)
+		address = DAT1_START_ADDR;
+#else
 		address = (FLASH_PAGE_SIZE*2) + CONFIG_PAGE_ADDR;
+#endif
 #else
 		address = flash.flash_page_size + flash.config_page_addr;
 #endif
 	}
 	else {
 #if !defined(MULTIFLASH_ENABLE)
+#if defined(DATABLOCK_ENABLE)
+		address = DAT0_START_ADDR;
+#else
 		address = 0x00000000 + CONFIG_PAGE_ADDR;
+#endif
 #else
 		address = 0x00000000 + flash.config_page_addr;
 #endif
 	}
 
 	erase_flash_page(address);
+#if !defined(DATABLOCK_ENABLE)
 	erase_flash_page(address+FLASH_PAGE_SIZE);
+#endif
 
 	ret = write_flash(address, data, size);
 #else
