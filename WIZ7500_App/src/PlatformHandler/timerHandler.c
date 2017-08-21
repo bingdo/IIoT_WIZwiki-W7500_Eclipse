@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "W7500x_dualtimer.h"
 #include "gpioHandler.h"
-#include "uarthandler.h"
+#include "uartHandler.h"
 #include "timerHandler.h"
 #include "tftp.h"
 #include "socket.h"
