@@ -225,10 +225,14 @@ int main()
 
 	BOOT_Pin_Init();
 	Board_factory_Init();
+<<<<<<< HEAD
 	EXTI_Configuration();
 #if defined(F_ENABLE_DHT11)
 	DHT11_Init();
 #endif
+=======
+	//EXTI_Configuration();
+>>>>>>> v1.0.0
 
 #if defined(EEPROM_ENABLE)
     I2C1_Init();
@@ -357,8 +361,13 @@ int main()
 
 	ret = application_update();
 
+<<<<<<< HEAD
     //printf("[BOOT] check trigger:%d ret:%d\r\n", get_bootpin_Status(), ret);
 	if((get_bootpin_Status() == 0) && (ret != TFTP_FAIL)) {
+=======
+    printf("[BOOT] check trigger:%d ret:%d\r\n", get_bootpin_Status(), ret);
+	if((get_bootpin_Status() == 1) && (ret != TFTP_FAIL)) {
+>>>>>>> v1.0.0
 		uint32_t tmp;
 
 #if !defined(MULTIFLASH_ENABLE)

@@ -155,12 +155,18 @@ int main()
 	LED_Off(LED2);
 	LED_Off(LED3);
 
+<<<<<<< HEAD
 	//BOOT_Pin_Init();
 	//Board_factory_Init();
 	//EXTI_Configuration();
 #if defined(F_ENABLE_DHT11)
 	DHT11_Init();
 #endif
+=======
+	BOOT_Pin_Init();
+	Board_factory_Init();
+	//EXTI_Configuration();
+>>>>>>> v1.0.0
 
 #if defined(EEPROM_ENABLE)
     I2C1_Init();
