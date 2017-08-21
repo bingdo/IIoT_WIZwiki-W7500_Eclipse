@@ -357,7 +357,7 @@ int main()
 
 	ret = application_update();
 
-    printf("[BOOT] check trigger:%d ret:%d\r\n", get_bootpin_Status(), ret);
+    //printf("[BOOT] check trigger:%d ret:%d\r\n", get_bootpin_Status(), ret);
 	if((get_bootpin_Status() == 1) && (ret != TFTP_FAIL)) {
 		uint32_t tmp;
 

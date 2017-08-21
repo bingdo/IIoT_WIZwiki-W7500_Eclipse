@@ -22,7 +22,7 @@
 
 extern uint8_t op_mode;
 
-#define F_ENABLE_DHT11
-#define F_ENABLE_TCPClient
+//#define F_ENABLE_DHT11
+//#define F_ENABLE_TCPClient
 
 #endif

@@ -56,7 +56,7 @@ UART_InitTypeDef UART_InitStructure;
 // Debugging Message Printout enable //
 ///////////////////////////////////////
 #define _MAIN_DEBUG_
-//#define F_APP_DHCP
+#define F_APP_DHCP
 //#define F_APP_DNS
 //#define F_APP_ATC
 

@@ -228,12 +228,20 @@ void check_mac_address()
 		do{
 			myprintf("Input MAC ? ");
 
+#if defined(ENABLE_MAC_UART2)
+			buf[0] = S_UartGetc();
+#else
 			UART_read_blk(buf, 1);
+#endif
 			if(buf[0] == 'S'){
 				myprintf("R");
 
 				for(i=0; i<12; i++){
+#if defined(ENABLE_MAC_UART2)
+					buf[i] = S_UartGetc();
+#else
 					UART_read_blk(buf + i, 1);
+#endif
 					//myprintf("%c", buf[i]);
 				}
 				ret = 1;
