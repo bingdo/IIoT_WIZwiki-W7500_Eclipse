@@ -13,14 +13,16 @@
 *********************************************************************************************************************************************************/
 /*
  *********************************************************************
- * @file    : wztoe.h
- * @version : 1.0.2
- * @author  : WIZnet
- * @data    20-May-2015
- * @brief   : WZTOE dirver for W7500
+ * @file    wztoe.h
+ * @version 1.0.4
+ * @author  WIZnet
+ * @data    20-Apr-2017
+ * @brief   WZTOE dirver for W7500
  *********************************************************************
  * @attention
  * @par Revision history
+ *    <2017/04/20> V1.0.4 by Eric Jung
+ *      1. Added wiz_recv_macraw_data() function for receiving data at MACRAW mode only
  *    <2017/01/06> V1.0.3 by justinKim
  *      1. DHAR register Read/Write problem bug fix
  *    <2015/05/20> V1.0.2 by justinKim
@@ -111,6 +113,8 @@
 #define WZTOE_Sn_DIPR3(ch)         (W7500x_WZTOE_BASE + (0x00010127 + ((ch)<<18)))
 
 #define WZTOE_Sn_KPALVTR(ch)      (W7500x_WZTOE_BASE + (0x00010180 + ((ch)<<18))) 
+#define WZTOE_Sn_RTR(ch)          (W7500x_WZTOE_BASE + (0x00010184 + ((ch)<<18))) 
+#define WZTOE_Sn_RCR(ch)          (W7500x_WZTOE_BASE + (0x00010188 + ((ch)<<18))) 
 #define WZTOE_Sn_TXBUF_SIZE(ch)   (W7500x_WZTOE_BASE + (0x00010200 + ((ch)<<18))) 
 #define WZTOE_Sn_TX_FSR(ch)       (W7500x_WZTOE_BASE + (0x00010204 + ((ch)<<18))) 
 #define WZTOE_Sn_TX_RD(ch)        (W7500x_WZTOE_BASE + (0x00010208 + ((ch)<<18))) 
@@ -641,10 +645,10 @@ WIZCHIP_WRITE((WZTOE_SIPR  ), sipr[3]);
  */
 //#define getSIPR(sipr) (*(volatile uint32_t *)(sipr) = htole32(*(volatile uint32_t *)(SIPR)))
 #define getSIPR(sipr) \
-    sipr[0] = WIZCHIP_READ((WZTOE_SIPR+3)); \
-sipr[1] = WIZCHIP_READ((WZTOE_SIPR+2)); \
-sipr[2] = WIZCHIP_READ((WZTOE_SIPR+1)); \
-sipr[3] = WIZCHIP_READ((WZTOE_SIPR+0));
+    (sipr)[0] = WIZCHIP_READ((WZTOE_SIPR+3)); \
+(sipr)[1] = WIZCHIP_READ((WZTOE_SIPR+2)); \
+(sipr)[2] = WIZCHIP_READ((WZTOE_SIPR+1)); \
+(sipr)[3] = WIZCHIP_READ((WZTOE_SIPR+0));
 
 /**
  * @ingroup Common_register_access_function
@@ -1003,10 +1007,10 @@ uipr[3] = WIZCHIP_READ((WZTOE_UIPR));
  */
 //15.05.19 by justinKim
 #define setSn_DIPR(sn, dipr) { \
-    WIZCHIP_WRITE((WZTOE_Sn_DIPR3(sn)), dipr[0]); \
-    WIZCHIP_WRITE((WZTOE_Sn_DIPR2(sn)), dipr[1]); \
-    WIZCHIP_WRITE((WZTOE_Sn_DIPR1(sn)), dipr[2]); \
-    WIZCHIP_WRITE((WZTOE_Sn_DIPR(sn)),   dipr[3]); \
+    WIZCHIP_WRITE((WZTOE_Sn_DIPR3(sn)), (dipr)[0]); \
+    WIZCHIP_WRITE((WZTOE_Sn_DIPR2(sn)), (dipr)[1]); \
+    WIZCHIP_WRITE((WZTOE_Sn_DIPR1(sn)), (dipr)[2]); \
+    WIZCHIP_WRITE((WZTOE_Sn_DIPR(sn)),   (dipr)[3]); \
 }
 //#define setSn_DIPR(sn, dipr) \
 
@@ -1054,6 +1058,44 @@ uipr[3] = WIZCHIP_READ((WZTOE_UIPR));
  */
 #define setSn_TXBUF_SIZE(sn, txbufsize) \
     WIZCHIP_WRITE(WZTOE_Sn_TXBUF_SIZE(sn), txbufsize)
+
+/**
+ * @ingroup Socket_register_access_function
+ * @brief Set @ref Sn_RTR register
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint16_t)sn_rtr Value to set @ref Sn_RTR register.
+ * @sa getSn_RTR()
+ */
+#define setSn_RTR(sn, sn_rtr) (*(volatile uint32_t *)(WZTOE_Sn_RTR(sn)) = sn_rtr)
+
+/**
+ * @ingroup Socket_register_access_function
+ * @brief Get @ref Sn_RTR register
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint16_t. Value of @ref Sn_RTR register.
+ * @sa setSn_RTR()
+ */
+#define getSn_RTR(sn) ((uint16_t)(*(volatile uint32_t *)(WZTOE_Sn_RTR(sn))))
+
+/**
+ * @ingroup Socket_register_access_function
+ * @brief Set @ref Sn_RCR register
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param (uint8_t)sn_rcr Value to set @ref Sn_RCR register.
+ * @sa getSn_RCR()
+ */
+#define setSn_RCR(sn, sn_rcr) \
+    WIZCHIP_WRITE(WZTOE_SN_RCR(sn), sn_rcr)
+
+/**
+ * @ingroup Socket_register_access_function
+ * @brief Get @ref Sn_RCR register
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @return uint8_t. Value of @ref Sn_RCR register.
+ * @sa setSn_RCR()
+ */
+#define getSn_RCR(sn) \
+    WIZCHIP_READ(WZTOE_SN_RCR(sn))
 
 /**
  * @ingroup Socket_register_access_function
@@ -1208,6 +1250,23 @@ void wiz_send_data(uint8_t sn, uint8_t *wizdata, uint16_t len);
  * @sa wiz_send_data()
  */
 void wiz_recv_data(uint8_t sn, uint8_t *wizdata, uint16_t len);
+
+/**
+ * @ingroup Basic_IO_function
+ * @brief It copies data to your buffer from internal RX memory at MACRAW socket mode
+ *
+ * @details This function read the Rx read pointer register and after that,
+ * it copies the received data from internal RX memory
+ * to <i>wizdata(pointer variable)</i> of the length of <i>len(variable)</i> bytes.
+ * This function is being called by recvfrom() function at MACRAW socket mode only.
+ *
+ * @note User should read upper byte first and lower byte later to get proper value.
+ * @param (uint8_t)sn Socket number. It should be <b>0 ~ 7</b>.
+ * @param wizdata Pointer buffer to read data
+ * @param len Data length
+ * @sa wiz_send_data()
+ */
+void wiz_recv_macraw_data(uint8_t sn, uint8_t *wizdata, uint16_t len);
 
 /**
  * @ingroup Basic_IO_function

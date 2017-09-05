@@ -41,6 +41,11 @@
 #include "dhcp_cb.h"
 #include "atcmd.h"
 #include "bsp_dht11.h"
+#include "loopback.h"
+#include "wztoeHandler.h"
+#include "rtcHandler.h"
+#include "arp.h"
+#include "ping.h"
 
 /* Private typedef -----------------------------------------------------------*/
 UART_InitTypeDef UART_InitStructure;
@@ -79,6 +84,7 @@ static __IO uint32_t TimingDelay;
  ****************************************************************************/
 uint8_t g_send_buf[WORK_BUF_SIZE];
 uint8_t g_recv_buf[WORK_BUF_SIZE];
+uint8_t gDATABUF[DATA_BUF_SIZE];
 
 uint8_t run_dns = 1;
 uint8_t op_mode;
@@ -92,6 +98,10 @@ volatile uint8_t g_check_temp;
 #if defined(F_ENABLE_TCPClient)
 char str[256];
 #endif
+
+volatile int32_t g_int_cnt;
+volatile int32_t g_int_rflag;
+volatile int32_t g_rtcalarm_flag;
 
 /**
   * @brief   Main program
@@ -108,7 +118,7 @@ int main()
     //uint8_t sub_addr[4] = {255, 255, 255,  0};
     //uint8_t dns_server[4] = {8, 8, 8, 8};           // for Example domain name server
     //uint8_t tmp[8];
-	//int ret;
+	int ret;
 #if defined(F_APP_DHCP) || defined(F_APP_DNS)
 	S2E_Packet *value = get_S2E_Packet_pointer();
 #endif
@@ -158,6 +168,7 @@ int main()
 	//BOOT_Pin_Init();
 	//Board_factory_Init();
 	//EXTI_Configuration();
+	//RORT2_Configuration();
 #if defined(F_ENABLE_DHT11)
 	DHT11_Init();
 #endif
@@ -171,11 +182,13 @@ int main()
 	UART_Configuration();
 
 	/* Check MAC Address */
-	check_mac_address();
+	//check_mac_address();
 
     //UART_StructInit(&UART_InitStructure);
     //UART_Init(UART_DEBUG,&UART_InitStructure);
 	Timer0_Configuration();
+	//WZTOE_Configuration();
+	//RTC_Configuration();
 
 	uint8_t tmpstr[6] = {0,};
 	ctlwizchip(CW_GET_ID,(void*)tmpstr);
@@ -215,6 +228,7 @@ int main()
     delay(1000);
     delay(1000);
 #endif
+
 
 	Mac_Conf();
 #if defined(F_APP_DHCP)

@@ -8,7 +8,6 @@
 #define __TFTP_H__
 
 #include <stdint.h>
-#include "W7500x_wztoe.h"
 
 #define F_APP_TFTP
 #define __TFTP_DEBUG__
