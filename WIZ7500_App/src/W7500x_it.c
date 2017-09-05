@@ -25,6 +25,9 @@
 #include "timerHandler.h"
 #include "uartHandler.h"
 #include "extiHandler.h"
+#include "wztoeHandler.h"
+#include "gpioHandler.h"
+#include "rtcHandler.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -178,7 +181,9 @@ void PORT1_Handler(void)
   * @retval None
   */
 void PORT2_Handler(void)
-{}
+{
+	PORT2_IRQ_Handler(GPIOC, 2);
+}
 
 
 /**
@@ -284,6 +289,16 @@ void PWM7_Handler(void)
 {}
 
 /**
+  * @brief  This function handles RTC Handler.
+  * @param  None
+  * @retval None
+  */
+void RTC_Handler(void)
+{
+	RTC_IRQ_Handler();
+}
+
+/**
   * @brief  This function handles ADC Handler.
   * @param  None
   * @retval None
@@ -297,7 +312,9 @@ void ADC_Handler(void)
   * @retval None
   */
 void WZTOE_Handler(void)
-{}
+{
+	WZTOE_IRQ_Handler();
+}
 
 /**
   * @brief  This function handles EXTI Handler.
@@ -306,7 +323,7 @@ void WZTOE_Handler(void)
   */
 void EXTI_Handler(void)
 {
-	Exti_IRQ_Handler();
+	EXTI_IRQ_Handler();
 }
 
 

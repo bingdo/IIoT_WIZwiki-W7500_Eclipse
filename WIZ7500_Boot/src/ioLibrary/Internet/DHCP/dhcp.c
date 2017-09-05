@@ -1,16 +1,3 @@
-/*******************************************************************************************************************************************************
- * Copyright ¨Ï 2016 <WIZnet Co.,Ltd.> 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ¡°Software¡±), 
- * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
- * THE SOFTWARE IS PROVIDED ¡°AS IS¡±, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*********************************************************************************************************************************************************/
 //*****************************************************************************
 //
 //! \file dhcp.c
@@ -62,6 +49,7 @@
 //
 //*****************************************************************************
 
+#include "socket.h"
 #include "dhcp.h"
 
 /* If you want to display debug & procssing message, Define _DHCP_DEBUG_ in dhcp.h */
@@ -365,7 +353,8 @@ void send_DHCP_DISCOVER(void)
 	uint16_t i;
 	uint8_t ip[4];
 	uint16_t k = 0;
-    int32_t ret = 0;
+	char arr[3];
+   
    makeDHCPMSG();
 
    k = 4;     // beacaue MAGIC_COOKIE already made by makeDHCPMSG()
@@ -388,13 +377,29 @@ void send_DHCP_DISCOVER(void)
 	
 	// host name
 	pDHCPMSG->OPT[k++] = hostName;
-	pDHCPMSG->OPT[k++] = 0;          // fill zero length of hostname 
+	pDHCPMSG->OPT[k++] = 0;          // fill zero length of hostname
 	for(i = 0 ; HOST_NAME[i] != 0; i++)
    	pDHCPMSG->OPT[k++] = HOST_NAME[i];
+#if 0
 	pDHCPMSG->OPT[k++] = DHCP_CHADDR[3];
 	pDHCPMSG->OPT[k++] = DHCP_CHADDR[4];
 	pDHCPMSG->OPT[k++] = DHCP_CHADDR[5];
 	pDHCPMSG->OPT[k - (i+3+1)] = i+3; // length of hostname
+#else
+	//itoa(DHCP_CHADDR[3], arr, 16);
+	snprintf(arr,sizeof(arr),"%02x", DHCP_CHADDR[3]);
+	pDHCPMSG->OPT[k++] = arr[0];
+	pDHCPMSG->OPT[k++] = arr[1];
+	//itoa(DHCP_CHADDR[4], arr, 16);
+	snprintf(arr,sizeof(arr),"%02x", DHCP_CHADDR[4]);
+	pDHCPMSG->OPT[k++] = arr[0];
+	pDHCPMSG->OPT[k++] = arr[1];
+	//itoa(DHCP_CHADDR[5], arr, 16);
+	snprintf(arr,sizeof(arr),"%02x", DHCP_CHADDR[5]);
+	pDHCPMSG->OPT[k++] = arr[0];
+	pDHCPMSG->OPT[k++] = arr[1];
+	pDHCPMSG->OPT[k - (i+6+1)] = i+6; // length of hostname
+#endif
 
 	pDHCPMSG->OPT[k++] = dhcpParamRequest;
 	pDHCPMSG->OPT[k++] = 0x06;	// length of request
@@ -418,11 +423,7 @@ void send_DHCP_DISCOVER(void)
 	printf("> Send DHCP_DISCOVER\r\n");
 #endif
 
-	ret= sendto(DHCP_SOCKET, (uint8_t *)pDHCPMSG, RIP_MSG_SIZE, ip, DHCP_SERVER_PORT);
-#ifdef _DHCP_DEBUG_
-	printf("> %d, %d\r\n", ret, RIP_MSG_SIZE);
-#endif
-
+	sendto(DHCP_SOCKET, (uint8_t *)pDHCPMSG, RIP_MSG_SIZE, ip, DHCP_SERVER_PORT);
 }
 
 /* SEND DHCP REQUEST */
@@ -431,6 +432,7 @@ void send_DHCP_REQUEST(void)
 	int i;
 	uint8_t ip[4];
 	uint16_t k = 0;
+	char arr[3];
 
    makeDHCPMSG();
 
@@ -494,10 +496,26 @@ void send_DHCP_REQUEST(void)
 	pDHCPMSG->OPT[k++] = 0; // length of hostname
 	for(i = 0 ; HOST_NAME[i] != 0; i++)
    	pDHCPMSG->OPT[k++] = HOST_NAME[i];
+#if 0
 	pDHCPMSG->OPT[k++] = DHCP_CHADDR[3];
 	pDHCPMSG->OPT[k++] = DHCP_CHADDR[4];
 	pDHCPMSG->OPT[k++] = DHCP_CHADDR[5];
 	pDHCPMSG->OPT[k - (i+3+1)] = i+3; // length of hostname
+#else
+	//itoa(DHCP_CHADDR[3], arr, 16);
+	snprintf(arr,sizeof(arr),"%02x", DHCP_CHADDR[3]);
+	pDHCPMSG->OPT[k++] = arr[0];
+	pDHCPMSG->OPT[k++] = arr[1];
+	//itoa(DHCP_CHADDR[4], arr, 16);
+	snprintf(arr,sizeof(arr),"%02x", DHCP_CHADDR[4]);
+	pDHCPMSG->OPT[k++] = arr[0];
+	pDHCPMSG->OPT[k++] = arr[1];
+	//itoa(DHCP_CHADDR[5], arr, 16);
+	snprintf(arr,sizeof(arr),"%02x", DHCP_CHADDR[5]);
+	pDHCPMSG->OPT[k++] = arr[0];
+	pDHCPMSG->OPT[k++] = arr[1];
+	pDHCPMSG->OPT[k - (i+6+1)] = i+6; // length of hostname
+#endif
 	
 	pDHCPMSG->OPT[k++] = dhcpParamRequest;
 	pDHCPMSG->OPT[k++] = 0x08;
@@ -726,12 +744,11 @@ uint8_t DHCP_run(void)
 #ifdef _DHCP_DEBUG_
 				printf("> Receive DHCP_ACK\r\n");
 #endif
-				printf("> Receive !!!\r\n");
-
-      if (check_DHCP_leasedIP()) {
+				if (check_DHCP_leasedIP()) {
 					// Network info assignment from DHCP
 					dhcp_ip_assign();
 					reset_DHCP_timeout();
+
 					dhcp_state = STATE_DHCP_LEASED;
 				} else {
 					// IP address conflict occurred
@@ -746,6 +763,7 @@ uint8_t DHCP_run(void)
 #endif
 
 				reset_DHCP_timeout();
+
 				dhcp_state = STATE_DHCP_DISCOVER;
 			} else ret = check_DHCP_timeout();
 		break;
@@ -883,13 +901,13 @@ int8_t check_DHCP_leasedIP(void)
 
 	// IP conflict detection : ARP request - ARP reply
 	// Broadcasting ARP Request for check the IP conflict using UDP sendto() function
-  //printf("%d %d %d %d\r\n", DHCP_allocated_ip[0], DHCP_allocated_ip[1], DHCP_allocated_ip[2], DHCP_allocated_ip[3]);
 	ret = sendto(DHCP_SOCKET, (uint8_t *)"CHECK_IP_CONFLICT", 17, DHCP_allocated_ip, 5000);
 
 	// RCR value restore
 	setRCR(tmp);
+
 	if(ret == SOCKERR_TIMEOUT) {
-  // UDP send Timeout occurred : allocated IP address is unique, DHCP Success
+		// UDP send Timeout occurred : allocated IP address is unique, DHCP Success
 
 #ifdef _DHCP_DEBUG_
 		printf("\r\n> Check leased IP - OK\r\n");
@@ -901,7 +919,7 @@ int8_t check_DHCP_leasedIP(void)
 		send_DHCP_DECLINE();
 
 		ret = dhcp_tick_1s;
-		while((dhcp_tick_1s - ret) < 2);   // wait for 1s over; wait to complete to send DECLINE message;
+		while((dhcp_tick_1s - ret) < 2) ;   // wait for 1s over; wait to complete to send DECLINE message;
 
 		return 0;
 	}
@@ -913,8 +931,7 @@ void DHCP_init(uint8_t s, uint8_t * buf)
    getSHAR(DHCP_CHADDR);
    if((DHCP_CHADDR[0] | DHCP_CHADDR[1]  | DHCP_CHADDR[2] | DHCP_CHADDR[3] | DHCP_CHADDR[4] | DHCP_CHADDR[5]) == 0x00)
    {
-      printf("DHCP_init-set MAC\r\n");
-		  // assing temporary mac address, you should be set SHAR before call this function. 
+      // assing temporary mac address, you should be set SHAR before call this function. 
       DHCP_CHADDR[0] = 0x00;
       DHCP_CHADDR[1] = 0x08;
       DHCP_CHADDR[2] = 0xdc;      

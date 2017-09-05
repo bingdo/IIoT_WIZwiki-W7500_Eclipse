@@ -125,8 +125,60 @@ void Board_factory_Init(void)
 
     /* Set to GPIO_Pin_0 to External Interrupt Port */
     EXTI_InitDef.EXTI_Line = FACT_PIN; // Connecting FACT_PIN(EXTI Input)
-    EXTI_InitDef.EXTI_Trigger = EXTI_Trigger_Rising; // Set to Trigger to Falling
+    EXTI_InitDef.EXTI_Trigger = EXTI_Trigger_Falling; // Set to Trigger to Falling
     EXTI_Init(FACT_GPIO_PAD, &EXTI_InitDef); // Set to PAD_PC
-    EXTI_Polarity_Set(FACT_GPIO_PAD, FACT_PIN, EXTI_Trigger_Rising); // Set to Polarity
+    EXTI_Polarity_Set(FACT_GPIO_PAD, FACT_PIN, EXTI_Trigger_Falling); // Set to Polarity
+}
+
+void PORT2_IRQ_Handler(GPIO_TypeDef* GPIOx, uint32_t port_num)
+{
+	int i = 0;
+	int loop = 16;
+
+	NVIC_ClearPendingIRQ(PORT2_IRQn);
+
+	for(i=0; i<loop; i++)
+	{
+		if(GPIOx->Interrupt.INTSTATUS & (1 << i))
+		{
+			GPIOx->Interrupt.INTCLEAR |= (1 << i);
+			if(GPIOx->INTPOLSET >> i) //rising
+			{
+				g_int_cnt++;
+				g_int_rflag = 1;
+			}
+			else //falling
+			{
+				g_int_cnt--;
+			}
+		}
+	}
+
+}
+
+void RORT2_Configuration()
+{
+	GPIO_InitTypeDef	GPIO_InitStructure;
+
+  	/* Configure the Boot trigger pin */
+  	GPIO_InitStructure.GPIO_Pin = BOOT_PIN/*|FACT_PIN|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14*/;
+ 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+ 	GPIO_InitStructure.GPIO_Pad = 0;
+  	GPIO_Init(BOOT_GPIO_PORT, &GPIO_InitStructure);
+    PAD_AFConfig(BOOT_GPIO_PAD, (BOOT_PIN/*|FACT_PIN|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14*/), BOOT_GPIO_AF);
+
+	NVIC_ClearPendingIRQ(PORT2_IRQn);
+    NVIC_EnableIRQ(PORT2_IRQn);
+
+    __disable_irq();
+    GPIO_INT_Configuration(BOOT_GPIO_PORT, BOOT_PIN, Rising);
+    __enable_irq();
+    //GPIO_INT_Configuration(FACT_GPIO_PORT, FACT_PIN, Falling);
+    //GPIO_INT_Configuration(FACT_GPIO_PORT, GPIO_Pin_12, Falling);
+    //GPIO_INT_Configuration(FACT_GPIO_PORT, GPIO_Pin_13, Falling);
+    //GPIO_INT_Configuration(FACT_GPIO_PORT, GPIO_Pin_14, Falling);
+
+    g_int_cnt = 0;
+    g_int_rflag = 0;
 }
 

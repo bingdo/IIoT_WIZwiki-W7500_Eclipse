@@ -4,7 +4,7 @@
 extern uint8_t factory_flag;
 
 //void EXTI_Handler(void)
-void Exti_IRQ_Handler(void)
+void EXTI_IRQ_Handler(void)
 {
 	factory_flag = 1;
 

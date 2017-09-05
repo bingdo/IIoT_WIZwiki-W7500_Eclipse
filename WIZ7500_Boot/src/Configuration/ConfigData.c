@@ -260,3 +260,24 @@ void check_mac_address()
 		myprintf("\r\nOK\r\n");
 	}
 }
+
+void erase_eeprom()
+{
+	uint8_t buf[EEPROM_BLOCK_SIZE];
+	int i;
+
+	for(i=0; i<EEPROM_BLOCK_SIZE; i++)
+	{
+		buf[i] = 0x00;
+	}
+
+	printf("\r\nErase Config Data...");
+	write_storage(0, &buf, EEPROM_BLOCK_SIZE);
+	write_storage(1, &buf, EEPROM_BLOCK_SIZE);
+	//write_storage(2, &buf, EEPROM_BLOCK_SIZE);
+	//read_storage(0, &buf, EEPROM_BLOCK_SIZE);
+	//read_storage(1, &buf, EEPROM_BLOCK_SIZE);
+	//read_storage(2, &buf, EEPROM_BLOCK_SIZE);
+	printf("\r\nOK\r\n");
+
+}

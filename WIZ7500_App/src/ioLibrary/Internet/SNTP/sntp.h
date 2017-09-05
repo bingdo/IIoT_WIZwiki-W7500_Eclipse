@@ -9,8 +9,6 @@
 #define SNTP_H_
 
 #include <stdint.h>
-#include <stdbool.h>
-#include "W7500x_wztoe.h"
 
 /*
  * @brief Define it for Debug & Monitor DNS processing.
