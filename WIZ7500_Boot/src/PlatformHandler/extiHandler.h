@@ -5,6 +5,6 @@
 #include "W7500x_exti.h"
 
 void EXTI_Configuration(void);
-void Exti_IRQ_Handler(void);
+void EXTI_IRQ_Handler(void);
 
 #endif

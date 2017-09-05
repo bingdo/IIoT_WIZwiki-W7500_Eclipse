@@ -245,6 +245,7 @@ int main()
 	check_mac_address();
 #else
 	erase_eeprom();
+	check_mac_address();
 	while(1)
 	{
 		LED_Toggle(LED1);
@@ -256,6 +257,7 @@ int main()
     //UART_StructInit(&UART_InitStructure);
     //UART_Init(UART_DEBUG,&UART_InitStructure);
 	Timer0_Configuration();
+	//WZTOE_Configuration();
 
 	uint8_t tmpstr[6] = {0,};
 	ctlwizchip(CW_GET_ID,(void*)tmpstr);
@@ -358,7 +360,7 @@ int main()
 	ret = application_update();
 
     //printf("[BOOT] check trigger:%d ret:%d\r\n", get_bootpin_Status(), ret);
-	if((get_bootpin_Status() == 1) && (ret != TFTP_FAIL)) {
+	if((get_bootpin_Status() == 0) && (ret != TFTP_FAIL)) {
 		uint32_t tmp;
 
 #if !defined(MULTIFLASH_ENABLE)

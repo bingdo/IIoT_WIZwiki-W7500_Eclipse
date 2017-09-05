@@ -96,7 +96,7 @@ typedef enum IRQn
   PWM5_IRQn                    = 19,       /*!< PWM 5 Interrupt                                   */ 
   PWM6_IRQn                    = 20,       /*!< PWM 6 Interrupt                                   */ 
   PWM7_IRQn                    = 21,       /*!< PWM 7 Interrupt                                   */ 
-  /* 22 = reserved Number */
+  RTC_IRQn					   = 22,
   ADC_IRQn                     = 23,       /*!< ADC Interrupt                                     */ 
   WZTOE_IRQn                   = 24,       /*!< WZTOE Interrupt                                   */       
   EXTI_IRQn                    = 25        /*!< EXTI Interrupt                                    */       
@@ -186,15 +186,18 @@ typedef struct
   __IO  uint32_t  PWM4CLK_PVSR;       /*!< PWM4CLK prescale value select register,       Address offset : 0xf4 */     
         uint32_t  RESERVED11[2];
   __IO  uint32_t  PWM5CLK_SSR;        /*!< PWM5CLK source select register,               Address offset : 0x100 */     
-  __IO  uint32_t  PWM5LK_PVSR;        /*!< PWM5CLK prescale value select register,       Address offset : 0x104 */     
+  __IO  uint32_t  PWM5CLK_PVSR;       /*!< PWM5CLK prescale value select register,       Address offset : 0x104 */     
         uint32_t  RESERVED12[2];
   __IO  uint32_t  PWM6CLK_SSR;        /*!< PWM6CLK source select register,               Address offset : 0x110 */     
   __IO  uint32_t  PWM6CLK_PVSR;       /*!< PWM6CLK prescale value select register,       Address offset : 0x114 */     
         uint32_t  RESERVED13[2];
   __IO  uint32_t  PWM7CLK_SSR;        /*!< PWM7CLK source select register,               Address offset : 0x120 */     
   __IO  uint32_t  PWM7CLK_PVSR;       /*!< PWM7CLK prescale value select register,       Address offset : 0x124 */     
-        uint32_t  RESERVED14[4];
-        uint32_t  RESERVED15[2];
+        uint32_t  RESERVED14[2];
+  __IO  uint32_t  RTCCLK_SEL;         /*!< RTCCLK source select register,                Address offset : 0x130 */
+  __IO  uint32_t  RTCCLK_PRE;         /*!< RTCCLK prescale value select register,        Address offset : 0x134 */
+  	  	uint32_t  RESERVED15[1];
+  __IO  uint32_t  RTCCLK_32K;         /*!< RTCCLK 32K select register,                	 Address offset : 0x13c */
 
   __IO  uint32_t  WDOGCLK_HS_SSR;     /*!< WDOGCLK High Speed source select register,         Address offset : 0x140 */     
   __IO  uint32_t  WDOGCLK_HS_PVSR;    /*!< WDOGCLK High Speed prescale value select register, Address offset : 0x144 */     
@@ -595,9 +598,6 @@ typedef struct
 #define PC_PCR  ((P_Port_Def *)   (P_PCR_BASE + 0x00000080UL))   /* PC_XX Pad Control Register */
 #define PD_PCR  ((P_Port_D_Def *) (P_PCR_BASE + 0x000000C0UL))   /* PD_XX Pad Control Register */
 
-//#define I2C0    ((I2C_TypeDef      *)  I2C0_BASE)
-//#define I2C1    ((I2C_TypeDef      *)  I2C1_BASE)
-
 #define PWM                             ((PWM_TypeDef *)         (W7500x_PWM_BASE + 0x800UL ))   
 #define PWM_CH0                         ((PWM_CHn_TypeDef *)     (W7500x_PWM_BASE))   
 #define PWM_CH1                         ((PWM_CHn_TypeDef *)     (W7500x_PWM_BASE + 0x100UL))   
@@ -747,6 +747,7 @@ typedef struct
 #define CRG_MONCLK_SSR_UARTCLK   (0x10ul)        // UARTCLK
 #define CRG_MONCLK_SSR_MII_RXCLK (0x11ul)        // MII_RXCLK 
 #define CRG_MONCLK_SSR_MII_TXCLK (0x12ul)        // MII_TXCLK
+#define CRG_MONCLK_SSR_RTCCLK	 (0x13ul)        // RTCCLK
 
 /******************************************************************************/
 /*                                                                            */
@@ -976,6 +977,7 @@ typedef struct
 #define Px_AFSR_AF2     (0x02ul)
 #define Px_AFSR_AF3     (0x03ul) 
 /****************   Bit definition for Px_PCR   **************************/
+#define Px_PCR_DEFAULT	    (0)       			//
 #define Px_PCR_PUPD_DOWN    (0x01ul << 0)       // Pull Down 
 #define Px_PCR_PUPD_UP      (0x01ul << 1)       // Pull Up
 #define Px_PCR_DS_HIGH      (0x01ul << 2)       // High Driving 

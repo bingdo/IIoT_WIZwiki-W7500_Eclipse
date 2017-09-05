@@ -39,6 +39,7 @@ extern "C" {
 #include "W7500x.h"
 
 extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
+extern uint32_t SystemFrequency;     /*!< System Clock Frequency (Core Clock)  */    
 extern uint32_t GetSystemClock(void);    /*!< Get System Clock Frequency */
 
 
@@ -67,7 +68,7 @@ extern void SystemCoreClockUpdate (void);
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
-#define EXTERN_XTAL     (12000000UL)     /* External Oscillator Frequency        */
+#define EXTERN_XTAL     (8000000UL)     /* External Oscillator Frequency        */
 #define INTERN_XTAL     (8000000UL)     /* Internal Oscillator Frequency         */
 
 #ifdef __cplusplus

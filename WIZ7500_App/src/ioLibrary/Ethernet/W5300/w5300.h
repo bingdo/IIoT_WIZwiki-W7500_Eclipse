@@ -1335,7 +1335,7 @@ void     WIZCHIP_WRITE(uint32_t AddrSel, uint16_t wb );
       #define setMR(mr) \
          (*((uint8_t*)MR) = (uint8_t)((mr) >> 8)); (*((uint8_t*)WIZCHIP_OFFSET_INC(MR,1)) = (uint8_t)((mr) & 0xFF))
    #elif (_WIZCHIP_IO_BUS_WIDTH_ == 16)
-      #define setMR(mr)    (*((uint16_t*)MR) = (uint16_t)((mr) & 0xFFFF))
+      #define setMR(mr)    (*((uint16_t*)MR)) = (uint16_t)((mr) & 0xFFFF))
    #else
       #error "Unknown _WIZCHIP_IO_BUS_WIDTH_. You should be define _WIZCHIP_IO_BUS_WIDTH as 8 or 16."   
    #endif

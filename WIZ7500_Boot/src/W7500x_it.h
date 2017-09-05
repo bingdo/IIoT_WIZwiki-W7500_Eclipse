@@ -63,6 +63,7 @@ void PWM4_Handler(void);
 void PWM5_Handler(void);
 void PWM6_Handler(void);
 void PWM7_Handler(void);
+void RTC_Handler(void);
 void ADC_Handler(void);
 void WZTOE_Handler(void);
 void EXTI_Handler(void);

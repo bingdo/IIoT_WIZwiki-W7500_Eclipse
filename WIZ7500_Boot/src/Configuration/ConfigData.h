@@ -133,5 +133,6 @@ void set_dhcp_mode();
 void set_static_mode();
 void set_mac(uint8_t *mac);
 void check_mac_address();
+void erase_eeprom();
 
 #endif /* S2E_PACKET_H_ */
